@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <algorithm>
 
+
 using namespace std;
 
 // Dizionario delle retribuzioni minime orarie per il livello B dal 2020 al 2025
@@ -131,8 +132,12 @@ int calcola_ore_lavorate(string mese_anno) {
     return ore_totali;
 }
 
-void genera_busta_paga(const std::string& data_assunzione, const std::string& mese_anno) {
+void genera_busta_paga(const std::string& data_assunzione, const std::string& mese_anno, const double& ferie_residue,  const std::string& lavoratore,  const std::string& datore) {
 
+    cout << fixed << setprecision(2);
+    cout << "\n--- Busta Paga ---" << endl;
+    cout << "Datore di lavoro : " << datore << endl; 
+    cout << "Lavoratore: " << lavoratore << endl; 
     double retribuzione_oraria = calcola_retribuzione_oraria(data_assunzione, mese_anno);
     int anno_riferimento = stoi(mese_anno.substr(3, 4));
     double ritenuta = ritenute[anno_riferimento];
@@ -145,41 +150,65 @@ void genera_busta_paga(const std::string& data_assunzione, const std::string& me
     double totale_lordo = totale_retribuzione + quota_tredicesima + tfr_mese;
     double ritenute_totali = ore_lavorate * ritenuta;
     double retribuzione_netto = totale_lordo - ritenute_totali;
+    double ferie_maturate = 2.1666666666;
+    double totale_contributi = ore_lavorate*(contributo_inps) +  ore_lavorate*(0.08); 
     int mesi_di_assunzione = calcola_mesi_assunzione(data_assunzione, mese_anno);
     
-    cout << fixed << setprecision(2);
-    cout << "\n--- Busta Paga ---" << endl;
+    cout << "\n--- Retribuzione, TFR, Tredicesima  ---" << endl;
     cout << "Mesi di anzianità: " << mesi_di_assunzione << endl;
-    
     cout << "Anno di riferimento: " << anno_riferimento << endl;
     cout << "Mese della busta paga : " << mese_anno << endl;
     cout << "Ritenuta (" << anno_riferimento << ") : " << ritenuta << " €" << endl;
-    cout << "Contributo INPS (" << anno_riferimento << ") : "  << contributo_inps << " €" << endl;
-
     cout << "Ore Retribuite: " << ore_lavorate << endl;
     cout << "Retribuzione Oraria: " << retribuzione_oraria << " €" << endl;
     cout << "Ore * Retribuzione Oraria: " << retribuzione_oraria*ore_lavorate << " €" << endl;
     cout << "Tredicesima: " << quota_tredicesima << " €" << endl;
     cout << "Totale: " << quota_tredicesima+retribuzione_oraria*ore_lavorate << " €" << endl;
-    
     cout << "TFR: " << tfr_mese << " €" << endl;
-    
     cout << "Totale Lordo (incluso TFR): " << totale_lordo << " €" << endl;
     cout << "Ritenute: " << ritenuta*ore_lavorate << " €" << endl;
     cout << "Retribuzione Netta: " << retribuzione_netto << " €" << endl;
 
 
+    cout << "\n--- Ferie ---" << endl;
+    cout << "Ferie residue dal mese precedente: " << ferie_residue << " ore" << endl;
+    cout << "Ferie maturate in un mese: " << ferie_maturate << " ore" << endl;
+    cout << "Ferie residue: " << ferie_maturate+ferie_residue << " ore" << endl;
+
+
+
+    cout << "\n--- Contribuzione ---" << endl;
+    cout << "Contributo INPS (" << anno_riferimento << ") : "  << contributo_inps << " €" << endl;
+    cout << "Ritenuta (" << anno_riferimento << ") : " << ritenuta << " €" << endl;
+    cout << "Contribuiti a carico del datore di lavoro: " << ore_lavorate*(contributo_inps-ritenuta) << " €" << endl;
+    cout << "Contribuiti a carico del lavoratore: " << ore_lavorate*(ritenuta) << " €" << endl;
+    cout << "Cassa colf a carico del datore di lavoro: " << ore_lavorate*(0.02) << " €" << endl;
+    cout << "Cassa colf a carico del lavoratore: " << ore_lavorate*(0.06) << " €" << endl;
+    cout << "Totale contributi e cassa colf versati al INPS tutti a carico dal datore: " << totale_contributi << " €" << endl;
+    
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        std::cerr << "Errore: devi fornire data_assunzione e mese_anno." << std::endl;
+    if (argc != 8) {
+        std::cerr << "Errore: devi fornire data di assunzione (GG/MM/AAAA) poi il mese e l'anno per cui creare la busta (MM/AAAA) e poi le ferie residue in ore poi il nome e cognome del lavoratore e poi il nome e cognome del datore." << std::endl;
         return 1;
     }
 
     std::string data_assunzione = argv[1];
     std::string mese_anno = argv[2];
+    std::string ferie_residue_str = argv[3];
+    std::string lavoratore_nome = argv[4];
+    std::string lavoratore_cognome = argv[5];
+    std::string datore_nome = argv[6];
+    std::string datore_cognome = argv[7];
+    double ferie_residue = std::stod(ferie_residue_str);
 
-    genera_busta_paga(data_assunzione, mese_anno);
+    std::string lavoratore;
+    lavoratore  = lavoratore_nome + " " + lavoratore_cognome;
+
+    std::string datore;
+    datore  = datore_nome + " " + datore_cognome;
+
+    genera_busta_paga(data_assunzione, mese_anno, ferie_residue, lavoratore, datore);
     return 0;
 }

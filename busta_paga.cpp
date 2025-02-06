@@ -132,7 +132,7 @@ int calcola_ore_lavorate(string mese_anno) {
     return ore_totali;
 }
 
-void genera_busta_paga(const std::string& data_assunzione, const std::string& mese_anno, const double& ferie_residue,  const std::string& lavoratore,  const std::string& datore) {
+void genera_busta_paga(const std::string& data_assunzione, const std::string& mese_anno, const double& ferie_residue,  const double& ferie_godute, const std::string& lavoratore,  const std::string& datore) {
 
     cout << fixed << setprecision(2);
     cout << "\n--- Busta Paga ---" << endl;
@@ -151,7 +151,7 @@ void genera_busta_paga(const std::string& data_assunzione, const std::string& me
     double ritenute_totali = ore_lavorate * ritenuta;
     double retribuzione_netto = totale_lordo - ritenute_totali;
     double ferie_maturate = 2.1666666666;
-    double totale_contributi = ore_lavorate*(contributo_inps) +  ore_lavorate*(0.08); 
+    double totale_contributi = ore_lavorate*(contributo_inps) +  ore_lavorate*(0.08);
     int mesi_di_assunzione = calcola_mesi_assunzione(data_assunzione, mese_anno);
     
     cout << "\n--- Retribuzione, TFR, Tredicesima  ---" << endl;
@@ -172,8 +172,9 @@ void genera_busta_paga(const std::string& data_assunzione, const std::string& me
 
     cout << "\n--- Ferie ---" << endl;
     cout << "Ferie residue dal mese precedente: " << ferie_residue << " ore" << endl;
+    cout << "Ferie godute: " << ferie_godute << " ore" << endl;
     cout << "Ferie maturate in un mese: " << ferie_maturate << " ore" << endl;
-    cout << "Ferie residue: " << ferie_maturate+ferie_residue << " ore" << endl;
+    cout << "Ferie residue: " << ferie_maturate+ferie_residue-ferie_godute << " ore" << endl;
 
 
 
@@ -189,19 +190,21 @@ void genera_busta_paga(const std::string& data_assunzione, const std::string& me
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 8) {
-        std::cerr << "Errore: devi fornire data di assunzione (GG/MM/AAAA) poi il mese e l'anno per cui creare la busta (MM/AAAA) e poi le ferie residue in ore poi il nome e cognome del lavoratore e poi il nome e cognome del datore." << std::endl;
+    if (argc != 9) {
+        std::cerr << "Errore: devi fornire in quest'ordine: data di assunzione (GG/MM/AAAA); mese e l'anno della busta (MM/AAAA); ferie residue in ore; ferie godute in ore; nome e cognome del lavoratore;nome e cognome del datore." << std::endl;
         return 1;
     }
 
     std::string data_assunzione = argv[1];
     std::string mese_anno = argv[2];
     std::string ferie_residue_str = argv[3];
-    std::string lavoratore_nome = argv[4];
-    std::string lavoratore_cognome = argv[5];
-    std::string datore_nome = argv[6];
-    std::string datore_cognome = argv[7];
+    std::string ferie_godute_str = argv[4];
+    std::string lavoratore_nome = argv[5];
+    std::string lavoratore_cognome = argv[6];
+    std::string datore_nome = argv[7];
+    std::string datore_cognome = argv[8];
     double ferie_residue = std::stod(ferie_residue_str);
+    double ferie_godute  = std::stod(ferie_godute_str);
 
     std::string lavoratore;
     lavoratore  = lavoratore_nome + " " + lavoratore_cognome;
@@ -209,6 +212,6 @@ int main(int argc, char* argv[]) {
     std::string datore;
     datore  = datore_nome + " " + datore_cognome;
 
-    genera_busta_paga(data_assunzione, mese_anno, ferie_residue, lavoratore, datore);
+    genera_busta_paga(data_assunzione, mese_anno, ferie_residue, ferie_godute, lavoratore, datore);
     return 0;
 }
